@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import {getSession} from "better-auth/api";
 
 export function NavBar() {
   const router = useRouter();

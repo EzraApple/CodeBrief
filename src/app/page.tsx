@@ -34,11 +34,10 @@ export default function Home() {
             className="flex w-full gap-2"
             onSubmit={(e) => {
               e.preventDefault();
-              if (session) {
-                router.push("/dashboard");
-              } else {
-                router.push("/login");
-              }
+              const target = session 
+                ? `/dashboard/new?repoUrl=${encodeURIComponent(url)}`
+                : `/login?repoUrl=${encodeURIComponent(url)}`;
+              router.push(target);
             }}
           >
             <Input

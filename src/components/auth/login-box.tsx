@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { SignInForm } from "./sign-in-form";
 import { SignUpForm } from "./sign-up-form";
 
-export function LoginBox() {
+export function LoginBox( { repoUrl }: { repoUrl: string | null } ) {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader className="space-y-1">
@@ -15,10 +15,10 @@ export function LoginBox() {
             <TabsTrigger value="sign-up">Sign Up</TabsTrigger>
           </TabsList>
           <TabsContent value="sign-in" className="mt-4">
-            <SignInForm />
+            <SignInForm repoUrl={repoUrl} />
           </TabsContent>
           <TabsContent value="sign-up" className="mt-4">
-            <SignUpForm />
+            <SignUpForm repoUrl={repoUrl} />
           </TabsContent>
         </Tabs>
       </CardHeader>

@@ -32,7 +32,7 @@ const formSchema = z.object({
     ),
 });
 
-export function SignUpForm() {
+export function SignUpForm({ repoUrl }: { repoUrl: string | null }) {
   const [shake, setShake] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -59,14 +59,17 @@ export function SignUpForm() {
         email: values.email,
         password: values.password,
         name: values.username,
-        callbackURL: "/dashboard",
       });
 
       if (result.error) {
         throw result.error;
       }
 
-      router.push("/dashboard");
+      router.push(
+        repoUrl
+          ? `/dashboard/new?repoUrl=${encodeURIComponent(repoUrl)}`
+          : "/dashboard"
+      );
     } catch (error) {
       setShake(true);
       setTimeout(() => setShake(false), 500);

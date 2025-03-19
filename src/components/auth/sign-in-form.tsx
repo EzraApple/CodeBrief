@@ -25,7 +25,7 @@ const formSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-export function SignInForm() {
+export function SignInForm({ repoUrl }: { repoUrl: string | null }) {
   const [shake, setShake] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -47,7 +47,11 @@ export function SignInForm() {
         throw result.error;
       }
 
-      router.push("/dashboard");
+      router.push(
+        repoUrl
+          ? `/dashboard/new?repoUrl=${encodeURIComponent(repoUrl)}`
+          : "/dashboard"
+      );
     } catch (error) {
       setShake(true);
       setTimeout(() => setShake(false), 500);
