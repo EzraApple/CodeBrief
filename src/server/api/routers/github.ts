@@ -6,6 +6,7 @@ import { fetchGitTree } from "~/lib/github/content/fetchGitTree";
 import { buildRepoTree } from "~/lib/github/content/buildRepoTree";
 import { formatRepoTreeToMarkdown } from "~/lib/github/visualization/formatTree";
 import { db } from "~/server/db";
+import {RepoTreeNode} from "~/lib/github";
 
 export const githubRouter = createTRPCRouter({
     getRepoTreeFormatted: publicProcedure
@@ -78,8 +79,9 @@ export const githubRouter = createTRPCRouter({
                 where: { repoUrl: input.repoUrl },
             });
             if (existing) {
-                return { treeData: existing.treeData, id: existing.id };
+                return { id: existing.id, repoUrl: input.repoUrl, treeData: existing.treeData };
             }
+
             // Otherwise, fetch from GitHub.
             const repoInfo = extractRepoInfo(input.repoUrl);
             const baseUrl = generateBaseApiUrl(repoInfo);
@@ -97,8 +99,9 @@ export const githubRouter = createTRPCRouter({
                         treeData: nestedTree,
                     },
                 });
-                return { treeData: nestedTree, id: newRepoTree.id };
+                return { id: newRepoTree.id, repoUrl: input.repoUrl, treeData: nestedTree };
             }
+
             return { treeData: nestedTree };
         }),
 

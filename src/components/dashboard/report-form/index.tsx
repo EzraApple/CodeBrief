@@ -10,6 +10,9 @@ import { ModelSelection } from "./model-selection";
 import { SectionList } from "./section-list";
 import { SectionOverview } from "./section-overview";
 import type { ReportFormProps, ReportSection } from "./types";
+import {useSession} from "~/lib/auth/auth-client";
+import { useRouter } from "next/navigation";
+
 
 const INITIAL_SECTIONS: ReportSection[] = [
     { id: "project-overview", label: "Project Overview", checked: false },
@@ -22,15 +25,20 @@ const INITIAL_SECTIONS: ReportSection[] = [
     { id: "security", label: "Security & Compliance", checked: false },
 ];
 
-export function ReportForm({ repoUrl }: ReportFormProps) {
+export function ReportForm({ repoUrl, repoTree }: ReportFormProps) {
+    console.log(repoTree)
     const [selectedModel, setSelectedModel] = useState<string>("");
     const [sections, setSections] = useState<ReportSection[]>(INITIAL_SECTIONS);
     const [orderedSectionIds, setOrderedSectionIds] = useState<string[]>([]);
+    const router = useRouter();
+
+    const { data: session } = useSession();
     
     // Get available models from the LLM router
     const { data: modelProviders } = api.llm.getAvailableModels.useQuery();
     const generateRepoContext = api.context.generateRepoContext.useMutation();
     const promptModel = api.llm.promptModel.useMutation();
+    const createReport = api.report.create.useMutation();
 
     const handleSectionToggle = (sectionId: string) => {
         setSections(prev => {
@@ -85,33 +93,42 @@ export function ReportForm({ repoUrl }: ReportFormProps) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         try {
-            // Generate repo context
+            // 1. Generate repo context.
             const context = await generateRepoContext.mutateAsync({
                 repoUrl,
                 style: "xml",
                 compress: false,
             });
 
-            // Get checked sections in their current order
+            // 2. Compile selected sections in their current order.
             const selectedSections = orderedSectionIds
                 .map(id => sections.find(s => s.id === id)?.label ?? "")
                 .filter(Boolean)
                 .join("\n");
 
-            // Send to LLM
-            const response = await promptModel.mutateAsync({
+            // 3. Create a new report record with pending status.
+            const newReport = await createReport.mutateAsync({
+                userId: session?.user?.id ?? "",
+                repoUrl,
+            });
+
+            // 4. Trigger the background job to process the prompt.
+            promptModel.mutateAsync({
                 model: selectedModel,
                 context: context.context,
                 template: selectedSections,
+                reportId: newReport.id,
             });
 
-            console.log("Report generation response:", response);
+            // 5. Redirect to the dashboard page.
+            router.push("/dashboard");
         } catch (error) {
             console.error("Error generating report:", error);
         }
     };
+
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-md">

@@ -52,23 +52,22 @@ model RepoTree {
   treeData  Json
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  reports Report[]
 }
 
 model Report {
-  id         String   @id @default(cuid())
-  repoUrl    String
-  repoTreeId String
-  repoTree   RepoTree @relation(fields: [repoTreeId], references: [id])
-  userId     String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  User       User     @relation(fields: [userId], references: [id])
-
-  // Optional relation to RepoContext, allowing you to attach context after report creation.
+  id            String       @id @default(cuid())
+  repoUrl       String
+  userId        String
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  User          User         @relation(fields: [userId], references: [id])
+  // Optional relation to RepoContext
   repoContextId String?
   repoContext   RepoContext? @relation(fields: [repoContextId], references: [id])
+
+  // New fields for report generation state
+  modelResponse String? // Stores the language model's output when ready.
+  status        String  @default("pending") // e.g., "pending", "complete", or "failed"
 }
 
 model RepoContext {

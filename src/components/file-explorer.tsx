@@ -168,6 +168,7 @@ export function FileExplorer({
                              }: FileExplorerProps) {
     // Annotate the tree with DFS indices
     const annotatedTree = assignDFSIndices(tree);
+    console.log("File EX:", tree)
 
     // Determine the maximum DFS index in the tree
     let maxDfsIndex = 0;

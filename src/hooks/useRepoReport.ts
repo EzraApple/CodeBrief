@@ -46,7 +46,7 @@ export function useRepoReport(repoUrl: string | null): UseRepoReportReturn {
         }
     );
 
-    const finalTreeData = treeData || data?.treeData || null;
+    const finalTreeData = (treeData ?? data?.treeData) ?? null;
 
     return { treeData: finalTreeData, isLoading, error, title };
 }

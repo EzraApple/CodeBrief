@@ -2,38 +2,77 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { db } from "~/server/db";
+import {reportEmitter} from "~/server/reportEmitter";
 
 export const reportRouter = createTRPCRouter({
-    // Create a new report for the user.
+
     create: publicProcedure
         .input(
             z.object({
                 userId: z.string(),
                 repoUrl: z.string().url(),
-                content: z.string(),
             })
         )
         .mutation(async ({ input }) => {
             return db.report.create({
                 data: {
                     repoUrl: input.repoUrl,
-                    content: input.content,
                     userId: input.userId,
+                    status: "pending",
                 },
             });
         }),
 
-    // Retrieve a report by its ID for the user.
-    getById: publicProcedure
-        .input(z.object({ id: z.string(), userId: z.string() }))
-        .query(async ({ input }) => {
-            return db.report.findFirst({
-                where: {
-                    id: input.id,
-                    userId: input.userId,
+
+
+
+    // Update the report with the model response when ready
+    updateReportResponse: publicProcedure
+        .input(
+            z.object({
+                reportId: z.string(),
+                modelResponse: z.string(),
+                status: z.string().optional(), // default to "complete"
+            })
+        )
+        .mutation(async ({ input }) => {
+            const updatedReport = await db.report.update({
+                where: { id: input.reportId },
+                data: {
+                    modelResponse: input.modelResponse,
+                    status: input.status ?? "complete",
                 },
             });
+            // Emit an event so subscribers are notified of the update.
+            reportEmitter.emit("reportUpdated", updatedReport);
+            return updatedReport;
         }),
+
+    // Subscription for report updates (see next section)
+    onReportUpdate: publicProcedure.subscription(async function* ({ ctx, input, signal }) {
+        // In this example we use a simple event emitter.
+        // Make sure you import the Node EventEmitter from 'events' in your server code.
+        const listener = (updatedReport: any) => {
+            // Optionally filter for the current user, etc.
+            // For now we yield every update.
+            iterator.push(updatedReport);
+        };
+
+        const iterator: any[] = [];
+        reportEmitter.on("reportUpdated", listener);
+
+        try {
+            while (!signal.aborted) {
+                // Wait for new updates (e.g., poll every 500ms)
+                await new Promise((resolve) => setTimeout(resolve, 500));
+                while (iterator.length) {
+                    yield iterator.shift();
+                }
+            }
+        } finally {
+            reportEmitter.off("reportUpdated", listener);
+        }
+    }),
 
     // Retrieve all reports for the user.
     getByUserId: publicProcedure
@@ -44,6 +83,23 @@ export const reportRouter = createTRPCRouter({
                     userId: input.userId,
                 },
                 orderBy: { createdAt: "desc" },
+            });
+        }),
+
+    // Get a single report by ID for the specified user
+    getById: publicProcedure
+        .input(
+            z.object({
+                id: z.string(),
+                userId: z.string(),
+            })
+        )
+        .query(async ({ input }) => {
+            return db.report.findFirst({
+                where: {
+                    id: input.id,
+                    userId: input.userId,
+                },
             });
         }),
 
@@ -70,67 +126,4 @@ export const reportRouter = createTRPCRouter({
             });
         }),
 
-    // Delete a report.
-    delete: publicProcedure
-        .input(z.object({ id: z.string(), userId: z.string() }))
-        .mutation(async ({ input }) => {
-            return db.report.deleteMany({
-                where: {
-                    id: input.id,
-                    userId: input.userId,
-                },
-            });
-        }),
-
-    upsert: publicProcedure
-        .input(
-            z.object({
-                userId: z.string(),
-                repoUrl: z.string().url(),
-            })
-        )
-        .mutation(async ({ input }) => {
-            // Check if a report already exists for this user & repo.
-            const existingReport = await db.report.findFirst({
-                where: {
-                    userId: input.userId,
-                    repoUrl: input.repoUrl,
-                },
-            });
-            if (existingReport) {
-                return existingReport;
-            }
-            // Look up the RepoTree record.
-            const repoTree = await db.repoTree.findUnique({
-                where: { repoUrl: input.repoUrl },
-            });
-            if (!repoTree) {
-                throw new Error("Repository tree not found in database. Please try again later.");
-            }
-            // Create a new report that links to the cached repo tree.
-            return db.report.create({
-                data: {
-                    repoUrl: input.repoUrl,
-                    userId: input.userId,
-                    repoTreeId: repoTree.id,
-                },
-            });
-        }),
-
-    // Find a report by repoUrl for the user.
-    findByRepoUrl: publicProcedure
-        .input(
-            z.object({
-                userId: z.string(),
-                repoUrl: z.string().url(),
-            })
-        )
-        .query(async ({ input }) => {
-            return db.report.findFirst({
-                where: {
-                    repoUrl: input.repoUrl,
-                    userId: input.userId,
-                },
-            });
-        }),
 });

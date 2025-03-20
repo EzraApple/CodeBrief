@@ -5,6 +5,7 @@ import { Separator } from "~/components/ui/separator";
 import { ReportForm } from "~/components/dashboard/report-form";
 import { useRepoReport } from "~/hooks/useRepoReport";
 import { FileExplorer } from "~/components/file-explorer";
+import {tree} from "next/dist/build/templates/app-page";
 
 export default function NewReportPage() {
     const searchParams = useSearchParams();
@@ -12,13 +13,14 @@ export default function NewReportPage() {
 
     // Assume useRepoReport returns title along with treeData.
     const { treeData, isLoading, error, title } = useRepoReport(repoUrl);
+    console.log(treeData)
 
     return (
         <main className="container mx-auto flex h-[calc(100vh-4rem)]">
             {/* Left side: Report Form */}
             <div className="flex flex-1 flex-col items-center justify-center p-8">
                 {repoUrl ? (
-                    <ReportForm repoUrl={repoUrl} />
+                    <ReportForm repoUrl={repoUrl} repoTree = {treeData}/>
                 ) : (
                     <div className="w-full max-w-md">
                         <h1 className="text-4xl font-bold">New Report</h1>
