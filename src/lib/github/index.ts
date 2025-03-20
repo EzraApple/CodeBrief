@@ -16,3 +16,5 @@ export * from "./content/getRepoTree";
 export * from "./visualization/formatTree";
 export * from "./visualization/decodeContent";
 export * from "./visualization/inferFileType";
+export * from "./visualization/getLanguageBreakdown"
+export * from "./visualization/assignDFSIndices"

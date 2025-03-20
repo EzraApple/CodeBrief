@@ -19,6 +19,8 @@ model Post {
   @@index([name])
 }
 
+// Better-Auth + User Data
+
 model User {
   id            String    @id
   name          String
@@ -39,9 +41,34 @@ model User {
   lastName  String?
   phone     String?
 
+  reports Report[]
+
   @@unique([email])
   @@map("user")
 }
+
+// Report Data
+
+model RepoTree {
+  id        String   @id @default(cuid())
+  repoUrl   String   @unique
+  treeData  Json
+  updatedAt DateTime @updatedAt
+  reports   Report[] // Inverse relation field
+}
+
+model Report {
+  id         String   @id @default(cuid())
+  repoUrl    String
+  repoTreeId String
+  repoTree   RepoTree @relation(fields: [repoTreeId], references: [id])
+  userId     String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  User       User     @relation(fields: [userId], references: [id])
+}
+
+// Better-Auth
 
 model Session {
   id        String    @id

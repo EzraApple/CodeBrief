@@ -4,20 +4,21 @@ import Link from "next/link"
 import { useRouter } from "next/navigation";
 import { Github, User } from "lucide-react"
 import { useSession, signOut } from "~/lib/auth/auth-client";
-import { Button } from "./ui/button";
-import { Separator } from "./ui/separator";
+import { Button } from "../ui/button";
+import { Separator } from "../ui/separator";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 import {getSession} from "better-auth/api";
 
 export function NavBar() {
   const router = useRouter();
   const { data: session } = useSession();
+  console.log(useSession().data)
 
   return (
     <nav className="w-full border-b">
