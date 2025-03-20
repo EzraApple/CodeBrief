@@ -7,8 +7,8 @@ export interface LLMProvider {
 /**
  * Maps provider names to the list of supported model identifiers.
  */
-const supportedProviders: Record<string, string[]> = {
-    openai: ["gpt-4o-mini"],
+export const supportedProviders: Record<string, string[]> = {
+    "openai" : ["gpt-4o-mini"],
 };
 
 /**
