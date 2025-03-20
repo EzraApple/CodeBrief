@@ -19,8 +19,6 @@ model Post {
   @@index([name])
 }
 
-// Better-Auth + User Data
-
 model User {
   id            String    @id
   name          String
@@ -41,20 +39,21 @@ model User {
   lastName  String?
   phone     String?
 
-  reports Report[]
+  reports      Report[]
+  repoContexts RepoContext[]
 
   @@unique([email])
   @@map("user")
 }
 
-// Report Data
-
 model RepoTree {
   id        String   @id @default(cuid())
   repoUrl   String   @unique
   treeData  Json
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  reports   Report[] // Inverse relation field
+
+  reports Report[]
 }
 
 model Report {
@@ -66,6 +65,23 @@ model Report {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   User       User     @relation(fields: [userId], references: [id])
+
+  // Optional relation to RepoContext, allowing you to attach context after report creation.
+  repoContextId String?
+  repoContext   RepoContext? @relation(fields: [repoContextId], references: [id])
+}
+
+model RepoContext {
+  id        String   @id @default(cuid())
+  repoUrl   String
+  // The output from repomix (e.g. XML, Markdown, or plain text)
+  context   String
+  // Optional relation to a user.
+  userId    String?
+  createdAt DateTime @default(now())
+
+  User   User?    @relation(fields: [userId], references: [id])
+  Report Report[]
 }
 
 // Better-Auth
