@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "~/lib/auth/auth-client";
 import { api } from "~/trpc/react";
 import { NewReportDialog } from "~/components/dashboard/new-report-dialog";
@@ -27,44 +27,47 @@ export default function DashboardPage() {
     const userId = session?.user?.id ?? "";
     const [dialogOpen, setDialogOpen] = useState(false);
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+    const viewModeInitialized = useRef(false);
     const searchParams = useSearchParams();
     const router = useRouter();
     const { toast } = useToast();
 
-    // Check if user is coming from the new report page
     useEffect(() => {
         if (searchParams.get("fromNewReport") === "true") {
-            // Show toast notification
             toast({
                 title: "Report Added",
                 description: "Your report has been added to the pending list.",
                 duration: 5000,
             });
             
-            // Clear the query parameter
             router.replace("/dashboard");
         }
     }, [searchParams, toast, router]);
 
-    // Load view mode from localStorage on mount
     useEffect(() => {
-        const savedViewMode = localStorage.getItem("reportListViewMode");
-        if (savedViewMode === "grid" || savedViewMode === "list") {
-            setViewMode(savedViewMode);
+        if (!viewModeInitialized.current && typeof window !== 'undefined') {
+            const savedViewMode = localStorage.getItem("reportListViewMode");
+            if (savedViewMode === "grid" || savedViewMode === "list") {
+                setViewMode(savedViewMode as "grid" | "list");
+            }
+            viewModeInitialized.current = true;
         }
     }, []);
 
-    // Poll the reports query every 5000ms (5 seconds)
+    useEffect(() => {
+        if (viewModeInitialized.current && typeof window !== 'undefined') {
+            localStorage.setItem("reportListViewMode", viewMode);
+        }
+    }, [viewMode]);
+
     const { data: reports, isLoading } = api.report.getByUserId.useQuery(
         { userId: session?.user?.id ?? "" },
         { enabled: Boolean(session?.user?.id), refetchInterval: 5000 }
     );
 
-    // Split reports into pending (queue) and completed (library)
     const completedReports = (reports as Report[] ?? []).filter(r => r.status === "complete");
     const pendingReports = (reports as Report[] ?? []).filter(r => r.status !== "complete");
 
-    // Animation variants
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: { 
@@ -85,14 +88,18 @@ export default function DashboardPage() {
         }
     };
 
+    const handleViewModeChange = (newMode: "grid" | "list") => {
+        setViewMode(newMode);
+    };
+
     return (
         <motion.main 
-            className="container mx-auto p-4"
+            className="container mx-auto p-4 min-h-[100vh] flex flex-col"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
         >
-            <motion.div variants={itemVariants}>
+            <motion.div variants={itemVariants} className="flex-grow">
                 {isLoading ? (
                     <ReportListLoading viewMode={viewMode} />
                 ) : (
@@ -100,7 +107,7 @@ export default function DashboardPage() {
                         reports={completedReports} 
                         pendingReports={pendingReports}
                         onNewReport={() => setDialogOpen(true)}
-                        onViewModeChange={setViewMode}
+                        onViewModeChange={handleViewModeChange}
                         defaultViewMode={viewMode}
                         userId={userId}
                     />

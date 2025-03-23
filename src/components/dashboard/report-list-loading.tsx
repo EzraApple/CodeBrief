@@ -5,7 +5,7 @@ interface ReportListLoadingProps {
   viewMode: "grid" | "list";
 }
 
-export function ReportListLoading({ viewMode }: ReportListLoadingProps) {
+export function ReportListLoading({ viewMode = "grid" }: ReportListLoadingProps) {
   return (
     <section className="mb-8">
       <div className="flex items-center justify-between mb-4">
@@ -22,7 +22,7 @@ export function ReportListLoading({ viewMode }: ReportListLoadingProps) {
       <Skeleton className="h-1 w-full mb-4" />
       
       {viewMode === "grid" ? (
-        <ScrollArea className="h-[600px] w-full rounded-md">
+        <ScrollArea className="h-[calc(100vh-160px)] w-full rounded-md">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-1">
             {Array.from({ length: 8 }, (_, i) => (
               <Skeleton key={i} className="h-64 w-full rounded-lg" />
@@ -37,7 +37,7 @@ export function ReportListLoading({ viewMode }: ReportListLoadingProps) {
             <div className="flex-1 px-4">Description</div>
             <div className="w-[140px] text-right">Last Updated</div>
           </div>
-          <ScrollArea className="h-[600px] w-full rounded-md">
+          <ScrollArea className="h-[calc(100vh-160px)] w-full rounded-md">
             <div className="divide-y">
               {Array.from({ length: 10 }, (_, i) => (
                 <div key={i} className="flex items-center px-4 py-4">

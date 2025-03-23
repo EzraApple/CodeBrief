@@ -47,7 +47,7 @@ interface ReportListProps {
     pendingReports?: Report[];
     onNewReport: () => void;
     onViewModeChange?: (mode: "grid" | "list") => void;
-    defaultViewMode?: "grid" | "list";
+    defaultViewMode: "grid" | "list";
     userId: string;
     onPendingReportDeleted?: (reportId: string) => void;
 }
@@ -160,21 +160,20 @@ export function ReportList({
         }
     };
 
-    // Load view mode from localStorage on mount
+    // Update local viewMode when parent's defaultViewMode changes
     useEffect(() => {
-        const savedViewMode = localStorage.getItem("reportListViewMode");
-        if (savedViewMode === "grid" || savedViewMode === "list") {
-            setViewMode(savedViewMode);
+        if (defaultViewMode !== viewMode) {
+            setViewMode(defaultViewMode);
         }
-    }, []);
+    }, [defaultViewMode, viewMode]);
 
-    // Save view mode to localStorage whenever it changes
-    useEffect(() => {
-        localStorage.setItem("reportListViewMode", viewMode);
+    // Notify parent of viewMode changes
+    const handleViewModeChange = (newMode: "grid" | "list") => {
+        setViewMode(newMode);
         if (onViewModeChange) {
-            onViewModeChange(viewMode);
+            onViewModeChange(newMode);
         }
-    }, [viewMode, onViewModeChange]);
+    };
 
     // Update filtered reports when reports prop changes
     useEffect(() => {
@@ -294,7 +293,7 @@ export function ReportList({
                                 "rounded-none",
                                 viewMode === "grid" ? "bg-accent" : ""
                             )}
-                            onClick={() => setViewMode("grid")}
+                            onClick={() => handleViewModeChange("grid")}
                         >
                             <LayoutGrid className="h-4 w-4" />
                         </Button>
@@ -305,7 +304,7 @@ export function ReportList({
                                 "rounded-none",
                                 viewMode === "list" ? "bg-accent" : ""
                             )}
-                            onClick={() => setViewMode("list")}
+                            onClick={() => handleViewModeChange("list")}
                         >
                             <List className="h-4 w-4" />
                         </Button>
@@ -395,7 +394,7 @@ export function ReportList({
                                 exit="exit"
                                 variants={listItemVariants}
                             >
-                                <ScrollArea className="h-[600px] w-full rounded-md">
+                                <ScrollArea className="h-[calc(100vh-160px)] w-full rounded-md">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-1">
                                         {sortedReports.map((report) => (
                                             <ReportCard
@@ -425,7 +424,7 @@ export function ReportList({
                                         <div className="flex-1 px-4">Description</div>
                                         <div className="w-[140px] text-right">Last Updated</div>
                                     </div>
-                                    <ScrollArea className="h-[600px] w-full rounded-md">
+                                    <ScrollArea className="h-[calc(100vh-160px)] w-full rounded-md">
                                         <div className="divide-y">
                                             {sortedReports.map((report) => (
                                                 <ReportItem

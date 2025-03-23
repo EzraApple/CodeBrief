@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Notebook, MoreVertical } from "lucide-react"
+import { Notebook, MoreVertical, Trash2 } from "lucide-react"
 import { cn } from "~/lib/shadcn/utils"
 import { formatDistanceToNow } from "date-fns"
 import { Button } from "~/components/ui/button"
@@ -70,6 +70,7 @@ export function ReportItem({
                             className="text-destructive focus:text-destructive"
                             onClick={() => onDeleteReport(id)}
                         >
+                            <Trash2 className="h-4 w-4 mr-2 text-destructive" />
                             Delete Report
                         </DropdownMenuItem>
                     </DropdownMenuContent>
