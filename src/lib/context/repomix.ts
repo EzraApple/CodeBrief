@@ -36,7 +36,7 @@ export async function generateRepoMixOutput(
 
     // Build the repomix command with the desired options
     // Use the --remote flag for processing a remote GitHub repository
-    let command = `npx repomix --remote ${repoUrl} --output ${outputFilePath}`;
+    let command = `npx repomix --remote ${repoUrl} --output ${outputFilePath} --remove-comments`;
 
     // Set the output style (default to XML if not specified)
     if (options.style) {
@@ -58,14 +58,9 @@ export async function generateRepoMixOutput(
     // Execute the repomix CLI command
     try {
         const { stdout, stderr } = await execAsync(command);
-
-        // Optional: log stdout and stderr if you need to debug
         console.log(stdout, stderr);
 
-        // Read the generated output file content
         const data = await fs.readFile(outputFilePath, { encoding: 'utf8' });
-
-        // Optionally, clean up the temporary file after reading
         await fs.unlink(outputFilePath);
 
         return data;

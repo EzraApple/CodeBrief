@@ -11,6 +11,7 @@ export const reportRouter = createTRPCRouter({
             z.object({
                 userId: z.string(),
                 repoUrl: z.string().url(),
+                repoDescription: z.string(),
             })
         )
         .mutation(async ({ input }) => {
@@ -19,12 +20,10 @@ export const reportRouter = createTRPCRouter({
                     repoUrl: input.repoUrl,
                     userId: input.userId,
                     status: "pending",
+                    repoDescription: input.repoDescription,
                 },
             });
         }),
-
-
-
 
     // Update the report with the model response when ready
     updateReportResponse: publicProcedure
@@ -48,31 +47,6 @@ export const reportRouter = createTRPCRouter({
             return updatedReport;
         }),
 
-    // Subscription for report updates (see next section)
-    onReportUpdate: publicProcedure.subscription(async function* ({ ctx, input, signal }) {
-        // In this example we use a simple event emitter.
-        // Make sure you import the Node EventEmitter from 'events' in your server code.
-        const listener = (updatedReport: any) => {
-            // Optionally filter for the current user, etc.
-            // For now we yield every update.
-            iterator.push(updatedReport);
-        };
-
-        const iterator: any[] = [];
-        reportEmitter.on("reportUpdated", listener);
-
-        try {
-            while (!signal.aborted) {
-                // Wait for new updates (e.g., poll every 500ms)
-                await new Promise((resolve) => setTimeout(resolve, 500));
-                while (iterator.length) {
-                    yield iterator.shift();
-                }
-            }
-        } finally {
-            reportEmitter.off("reportUpdated", listener);
-        }
-    }),
 
     // Retrieve all reports for the user.
     getByUserId: publicProcedure
@@ -109,21 +83,39 @@ export const reportRouter = createTRPCRouter({
             z.object({
                 id: z.string(),
                 userId: z.string(),
-                repoUrl: z.string().url().optional(),
                 content: z.string().optional(),
             })
         )
         .mutation(async ({ input }) => {
-            return db.report.updateMany({
+            console.log()
+            return db.report.update({
+                where: {
+                    id: input.id,
+                    userId: input.userId
+                },
+                data: {
+                    modelResponse: input.content,
+                },
+            });
+        }),
+
+    // Delete a report from the database given a userID and report ID.
+    delete: publicProcedure
+        .input(
+            z.object({
+                id: z.string(),
+                userId: z.string(),
+            })
+        )
+        .mutation(async ({ input }) => {
+            // Using deleteMany in case the unique composite key is not defined
+            return db.report.deleteMany({
                 where: {
                     id: input.id,
                     userId: input.userId,
                 },
-                data: {
-                    repoUrl: input.repoUrl,
-                    content: input.content,
-                },
             });
         }),
+
 
 });

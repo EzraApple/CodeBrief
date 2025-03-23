@@ -3,6 +3,9 @@ import { createTRPCRouter, publicProcedure } from "../trpc";
 import { sendPromptToModel, supportedProviders, compileReportPrompt } from "~/lib/llm";
 import {reportEmitter} from "~/server/reportEmitter";
 import {db} from "~/server/db"
+import {compileTemplate} from "~/lib/llm/templates/compileTemplate";
+import {extractTemplateSectionNames} from "~/lib/llm/templates/getAvailableSections";
+import {templateSections} from "~/lib/llm/templates/defaultSections";
 
 export const llmRouter = createTRPCRouter({
     // Query to get the available models
@@ -10,17 +13,23 @@ export const llmRouter = createTRPCRouter({
         return supportedProviders;
     }),
 
+    getTemplateSectionNames: publicProcedure.query(() => {
+        return extractTemplateSectionNames(templateSections);
+    }),
+
     promptModel: publicProcedure
         .input(
             z.object({
                 model: z.string(),
                 context: z.string(),
-                template: z.string(),
+                templateSections: z.array(z.string()),
                 reportId: z.string(), // Add the reportId to update the record
             })
         )
         .mutation(async ({ input }) => {
-            const { model, context, template, reportId } = input;
+            const { model, context, templateSections, reportId } = input;
+
+            const template = compileTemplate(templateSections)
             // Compile the prompt
             const prompt = compileReportPrompt(context, template);
             // Send the prompt to the model and await the response

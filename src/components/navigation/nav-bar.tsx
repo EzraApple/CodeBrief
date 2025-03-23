@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation";
-import { Github, User } from "lucide-react"
+import { User, Home } from "lucide-react"
 import { useSession, signOut } from "~/lib/auth/auth-client";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
@@ -29,18 +29,22 @@ export function NavBar() {
           </Link>
           
           <div className="flex items-center space-x-6">
-            <Link href="/about" className="text-sm font-medium transition-colors hover:text-primary">
-              About
+            <Link href="/guide" className="text-sm font-medium transition-colors hover:text-primary">
+              Guide
             </Link>
-            <Link 
-              href="https://github.com/EzraApple"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-primary transition-colors"
-            >
-              <Github className="h-5 w-5" />
-            </Link>
+            
             <Separator orientation="vertical" className="h-6" />
+            
+            {session && (
+              <Link 
+                href="/dashboard" 
+                className="hover:text-primary transition-colors"
+                aria-label="Dashboard"
+              >
+                <Home className="h-5 w-5" />
+              </Link>
+            )}
+            
             {session ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

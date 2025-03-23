@@ -11,7 +11,7 @@ import type { GitTreeNode, RepoTreeNode } from "../types";
  */
 export function buildRepoTree(
     flatNodes: GitTreeNode[],
-    maxDepth: number
+    maxDepth: number | null
 ): RepoTreeNode[] {
     // Create a root container
     const root: RepoTreeNode = { name: "", type: "dir", children: [] };
@@ -20,7 +20,7 @@ export function buildRepoTree(
         // Split path into parts (directories/files)
         const parts = node.path.split("/");
         // Limit depth if necessary
-        if (maxDepth > 0 && parts.length > maxDepth) {
+        if (maxDepth !== null && maxDepth > 0 && parts.length > maxDepth) {
             parts.splice(maxDepth);
         }
         let current = root;

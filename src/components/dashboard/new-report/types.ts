@@ -18,6 +18,7 @@ export interface RepoTree {
 
 export interface ReportFormProps {
     repoUrl: string;
-    repoTree: RepoTree[];
+    repoTree: RepoTreeNode[] | null;
+    repoDescription?: string;
 }
 

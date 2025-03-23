@@ -1,4 +1,5 @@
 import {OpenAIProvider} from "~/lib/llm/providers/openaiProvider";
+import {GeminiProvider} from "~/lib/llm/providers/geminiProvider";
 
 export interface LLMProvider {
     sendPrompt(prompt: string, model?: string): Promise<string>;
@@ -9,6 +10,7 @@ export interface LLMProvider {
  */
 export const supportedProviders: Record<string, string[]> = {
     "openai" : ["gpt-4o-mini"],
+    "gemini" : ["gemini-2.0-flash-001"]
 };
 
 /**
@@ -26,6 +28,8 @@ function getProviderForModel(model: string) {
             // Based on the providerName, return the corresponding provider instance.
             if (providerName === "openai") {
                 return new OpenAIProvider();
+            } else if (providerName === "gemini") {
+                return new GeminiProvider()
             }
             // If you add more providers later, add additional conditions here.
         }

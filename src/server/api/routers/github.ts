@@ -7,6 +7,7 @@ import { buildRepoTree } from "~/lib/github/content/buildRepoTree";
 import { formatRepoTreeToMarkdown } from "~/lib/github/visualization/formatTree";
 import { db } from "~/server/db";
 import {RepoTreeNode} from "~/lib/github";
+import { getRepoDescription } from "~/lib/github/content/getRepoDescription";
 
 export const githubRouter = createTRPCRouter({
     getRepoTreeFormatted: publicProcedure
@@ -103,6 +104,19 @@ export const githubRouter = createTRPCRouter({
             }
 
             return { treeData: nestedTree };
+        }),
+
+    
+        getRepoDescription: publicProcedure
+        .input(
+          z.object({
+            repoUrl: z.string().url(),
+          })
+        )
+        .query(async ({ input }) => {
+          const description = await getRepoDescription(input.repoUrl);
+          // Return the description as a string (empty string if null)
+          return description || "";
         }),
 
 });

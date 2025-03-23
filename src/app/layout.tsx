@@ -5,6 +5,8 @@ import { type Metadata } from "next";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { NavBar } from "~/components/navigation/nav-bar";
+import { Footer } from "~/components/footer";
+import { Toaster } from "~/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "CodeBrief",
@@ -17,10 +19,14 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={GeistSans.variable}>
-      <body className="min-h-screen bg-background">
+      <body className="min-h-screen bg-background flex flex-col">
         <TRPCReactProvider>
           <NavBar />
-          {children}
+          <main className="flex-1">
+            {children}
+          </main>
+          <Footer />
+          <Toaster />
         </TRPCReactProvider>
       </body>
     </html>

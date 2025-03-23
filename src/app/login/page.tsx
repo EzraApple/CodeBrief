@@ -13,6 +13,14 @@ export default function LoginPage() {
     // useRepoReport now returns a title along with treeData.
     const { treeData, isLoading, error, title } = useRepoReport(repoUrl);
 
+    if (!repoUrl) {
+        return (
+            <main className="container mx-auto flex h-[calc(100vh-4rem)] items-center justify-center">
+                <LoginBox repoUrl={repoUrl} />
+            </main>
+        );
+    }
+
     return (
         <main className="container mx-auto flex h-[calc(100vh-4rem)]">
             {/* Left side: Login UI */}
@@ -22,28 +30,18 @@ export default function LoginPage() {
 
             <Separator orientation="vertical" />
 
-            {repoUrl ? (
-                // Render the "New Report Preview" placeholder with the repo tree and title.
-                <div className="flex flex-1 flex-col items-start justify-start p-8 w-full h-full overflow-hidden">
-                    {isLoading && <p>Loading repository structure...</p>}
-                    {error && (
-                        <p className="text-destructive">Error: {error.message}</p>
-                    )}
-                    {treeData && (
-                        <div className="w-full h-[calc(100%-5rem)]">
-                            <FileExplorer tree={treeData} title={title} delay={100} defaultExpanded={true} />
-                        </div>
-                    )}
-                </div>
-            ) : (
-                // Default placeholder if no repo URL is provided.
-                <div className="flex flex-1 flex-col items-start justify-start p-8 w-full">
-                    <div className="w-full">
-                        <h1 className="mb-8 text-3xl font-semibold">Welcome Back</h1>
-                        {/* Additional UI for non-repo users */}
+            {/* Repo Preview Side */}
+            <div className="flex flex-1 flex-col items-start justify-start p-8 w-full h-full overflow-hidden">
+                {isLoading && <p>Loading repository structure...</p>}
+                {error && (
+                    <p className="text-destructive">Error: {error.message}</p>
+                )}
+                {treeData && (
+                    <div className="w-full h-[calc(100%-5rem)]">
+                        <FileExplorer tree={treeData} title={title} delay={100} defaultExpanded={true} />
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </main>
     );
 }

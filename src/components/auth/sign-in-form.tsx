@@ -42,6 +42,7 @@ export function SignInForm({ repoUrl }: { repoUrl: string | null }) {
     setIsLoading(true);
     try {
       const result = await signIn.email(values);
+      console.log(result)
       
       if (result.error) {
         throw result.error;

@@ -23,15 +23,20 @@ export default function Home() {
   const isValid = url.trim() === "" || isValidUrl(url);
 
   return (
-    <main className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center p-4">
-      <div className="container flex max-w-2xl flex-col items-center gap-8">
-        <h1 className="text-center text-4xl font-bold tracking-tight sm:text-6xl">
-          Explain New Codebases
-        </h1>
+    <div className="flex min-h-[calc(100vh-9rem)] flex-col items-center justify-center p-4">
+      <div className="container flex max-w-5xl flex-col items-center gap-8">
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
+            Explain New Codebases
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+            Generate an instant overview of any public GitHub repository. Summaries, architecture insights, and key insights at your fingertips.
+          </p>
+        </div>
         
-        <div className="w-full max-w-lg space-y-2">
+        <div className="w-full max-w-xl space-y-2">
           <form 
-            className="flex w-full gap-2"
+            className="relative w-full"
             onSubmit={(e) => {
               e.preventDefault();
               const target = session 
@@ -40,22 +45,68 @@ export default function Home() {
               router.push(target);
             }}
           >
-            <Input
-              type="text"
-              placeholder="paste public github url"
-              className="flex-1"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-            />
-            <Button type="submit" disabled={!isValidUrl(url)}>
-              <ArrowRight className="h-4 w-4" />
-            </Button>
+            <div className="shadow-lg rounded-full overflow-hidden">
+              <Input
+                type="text"
+                placeholder="paste public github url"
+                className="w-full border-b rounded-full focus-visible:ring-0 focus-visible:ring-offset-0 text-lg py-6 pr-16 pl-6"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+              />
+              <Button 
+                type="submit" 
+                disabled={!isValidUrl(url)}
+                variant="ghost"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 rounded-full h-12 w-12 flex items-center justify-center"
+                size="icon"
+              >
+                <ArrowRight className="h-12 w-12" />
+              </Button>
+            </div>
           </form>
           {url && !isValid && (
             <p className="text-sm text-destructive">Please enter a valid URL</p>
           )}
         </div>
+        
+        <div className="mt-12 w-full">
+          <div className="flex justify-center items-center gap-6 mx-auto">
+            <div className="flex flex-col items-center w-[200px]">
+              <div className="rounded-xl shadow-md p-5 bg-white h-40 w-full flex flex-col items-center justify-center border border-gray-200">
+                <p className="font-medium text-center text-lg">Pick a repository</p>
+                <p className="text-sm text-gray-500 mt-2 text-center">Paste any public GitHub repo URL to analyze its structure</p>
+              </div>
+            </div>
+            
+            <ArrowRight className="h-10 w-10 text-muted-foreground flex-shrink-0" />
+            
+            <div className="flex flex-col items-center w-[200px]">
+              <div className="rounded-xl shadow-md p-5 bg-white h-40 w-full flex flex-col items-center justify-center border border-gray-200">
+                <p className="font-medium text-center text-lg">Design a report</p>
+                <p className="text-sm text-gray-500 mt-2 text-center">Specify what aspects of the codebase you want to understand</p>
+              </div>
+            </div>
+            
+            <ArrowRight className="h-10 w-10 text-muted-foreground flex-shrink-0" />
+            
+            <div className="flex flex-col items-center w-[200px]">
+              <div className="rounded-xl shadow-md p-5 bg-white h-40 w-full flex flex-col items-center justify-center border border-gray-200">
+                <p className="font-medium text-center text-lg">LLM analysis</p>
+                <p className="text-sm text-gray-500 mt-2 text-center">Advanced AI models process the code and create insights</p>
+              </div>
+            </div>
+            
+            <ArrowRight className="h-10 w-10 text-muted-foreground flex-shrink-0" />
+            
+            <div className="flex flex-col items-center w-[200px]">
+              <div className="rounded-xl shadow-md p-5 bg-white h-40 w-full flex flex-col items-center justify-center border border-gray-200">
+                <p className="font-medium text-center text-lg">Code report</p>
+                <p className="text-sm text-gray-500 mt-2 text-center">Get architecture, file structure, and key component explanations</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }
