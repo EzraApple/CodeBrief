@@ -124,7 +124,17 @@ export function ReportForm({ repoUrl, repoTree }: ReportFormProps) {
                 repoUrl,
             });
 
-            // 4. Trigger the background job to process the prompt.
+            // 4. Save new report to localStorage for optimistic UI update
+            // We'll add a temporary optimistic field to identify it
+            const optimisticReport = {
+                ...newReport,
+                optimistic: true
+            };
+            
+            // Store in localStorage to be picked up by dashboard page
+            localStorage.setItem('optimisticPendingReport', JSON.stringify(optimisticReport));
+
+            // 5. Trigger the background job to process the prompt.
             promptModel.mutateAsync({
                 model: selectedModel,
                 context: context.context,
@@ -132,7 +142,7 @@ export function ReportForm({ repoUrl, repoTree }: ReportFormProps) {
                 reportId: newReport.id,
             });
 
-            // 5. Redirect to the dashboard page with query parameter.
+            // 6. Redirect to the dashboard page with query parameter.
             router.push("/dashboard?fromNewReport=true");
         } catch (error) {
             console.error("Error generating report:", error);

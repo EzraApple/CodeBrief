@@ -31,7 +31,32 @@ export default function DashboardPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const { toast } = useToast();
+    
+    // For optimistic updates
+    const [optimisticPendingReports, setOptimisticPendingReports] = useState<Report[]>([]);
+    const optimisticChecked = useRef(false);
 
+    // Check for optimistic report in localStorage
+    useEffect(() => {
+        if (typeof window !== 'undefined' && !optimisticChecked.current) {
+            const optimisticReport = localStorage.getItem('optimisticPendingReport');
+            if (optimisticReport) {
+                try {
+                    const report = JSON.parse(optimisticReport) as Report;
+                    if (report && report.userId === userId) {
+                        setOptimisticPendingReports(prev => [...prev, report]);
+                    }
+                    // Remove from localStorage after reading it
+                    localStorage.removeItem('optimisticPendingReport');
+                } catch (e) {
+                    console.error('Error parsing optimistic report', e);
+                }
+            }
+            optimisticChecked.current = true;
+        }
+    }, [userId]);
+
+    // Show toast notification for new report
     useEffect(() => {
         if (searchParams.get("fromNewReport") === "true") {
             toast({
@@ -65,8 +90,24 @@ export default function DashboardPage() {
         { enabled: Boolean(session?.user?.id), refetchInterval: 5000 }
     );
 
+    // Split reports into pending (queue) and completed (library)
+    // Include optimistic pending reports
     const completedReports = (reports as Report[] ?? []).filter(r => r.status === "complete");
-    const pendingReports = (reports as Report[] ?? []).filter(r => r.status !== "complete");
+    const pendingReports = [
+        ...(reports as Report[] ?? []).filter(r => r.status !== "complete"),
+        ...optimisticPendingReports
+    ];
+
+    // When we get new data from API, remove any optimistic reports that are now in the real data
+    useEffect(() => {
+        if (reports && optimisticPendingReports.length > 0) {
+            const reportIds = new Set((reports as Report[]).map(r => r.id));
+            
+            setOptimisticPendingReports(prev => 
+                prev.filter(r => !reportIds.has(r.id))
+            );
+        }
+    }, [reports, optimisticPendingReports]);
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -100,7 +141,7 @@ export default function DashboardPage() {
             animate="visible"
         >
             <motion.div variants={itemVariants} className="flex-grow">
-                {isLoading ? (
+                {isLoading && optimisticPendingReports.length === 0 ? (
                     <ReportListLoading viewMode={viewMode} />
                 ) : (
                     <ReportList 

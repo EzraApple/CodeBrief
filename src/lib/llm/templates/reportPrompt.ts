@@ -29,9 +29,11 @@ General Advice:
 - Analyze the repository context carefully and base your insights strictly on the information provided.
 - If certain details are ambiguous or missing, clearly indicate the uncertainty.
 - Maintain a neutral and factual tone, and avoid making assumptions not supported by the data.
+- Do not simply summarize; instead, elaborate with examples, detailed explanations, and actionable insights.
+- For each section, please provide a detailed analysis with at least a page for each section covering different aspects. More if needed.
+- Make use of paragraphs, code blocks, file-structure diagrams, and file/directory references to be as clear as possible.
 - Structure your response with clear headings, subheadings, and bullet points for easy readability.
 - Review your report for consistency and clarity to deliver a high-quality response.
-- For each section, include all relevant information from the Repository Context.
 
 Report Template:
 -------------------
