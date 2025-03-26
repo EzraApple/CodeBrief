@@ -20,5 +20,20 @@ export interface ReportFormProps {
     repoUrl: string;
     repoTree: RepoTreeNode[] | null;
     repoDescription?: string;
+    isPrivate: boolean;
+}
+
+export interface RepoInputProps {
+    initialRepoUrl: string | null;
+    onUrlLocked: (url: string, description: string, isPrivate: boolean) => void;
+}
+
+export interface GithubRepository {
+    id: number;
+    name: string;
+    full_name: string;
+    html_url: string;
+    description: string | null;
+    private: boolean;
 }
 

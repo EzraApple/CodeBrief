@@ -6,7 +6,6 @@ import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
 import type { DropResult } from "@hello-pangea/dnd";
 import { api } from "~/trpc/react";
-import { ModelSelection } from "./model-selection";
 import { SectionList } from "./section-list";
 import { SectionOverview } from "./section-overview";
 import type { ReportFormProps, ReportSection } from "./types";
@@ -14,13 +13,19 @@ import { useSession } from "~/lib/auth/auth-client";
 import { useRouter } from "next/navigation";
 import { Spinner } from "~/components/ui/spinner";
 
-export function ReportForm({ repoUrl, repoTree }: ReportFormProps) {
+export { RepoInput } from "./repo-input";
+
+export function ReportForm({ repoUrl, repoTree, repoDescription = "", isPrivate }: ReportFormProps) {
     // Fetch template section names from the backend.
     const { data: init_sections, isLoading: sectionsLoading } =
         api.llm.getTemplateSectionNames.useQuery();
 
-    // Local state for selected model, sections, and ordered section IDs.
-    const [selectedModel, setSelectedModel] = useState<string>("");
+    // Log the repository's privacy status as requested
+    useEffect(() => {
+        console.log("Repository privacy status:", isPrivate);
+    }, [isPrivate]);
+
+    // Local state for sections, and ordered section IDs.
     const [sections, setSections] = useState<ReportSection[]>([]);
     const [orderedSectionIds, setOrderedSectionIds] = useState<string[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,9 +33,6 @@ export function ReportForm({ repoUrl, repoTree }: ReportFormProps) {
 
     const { data: session } = useSession();
 
-    // Get available models from the LLM router.
-    const { data: modelProviders } = api.llm.getAvailableModels.useQuery();
-    const { data: repoDescription } = api.github.getRepoDescription.useQuery({ repoUrl });
     const generateRepoContext = api.context.generateRepoContext.useMutation();
     const promptModel = api.llm.promptModel.useMutation();
     const createReport = api.report.create.useMutation();
@@ -110,6 +112,7 @@ export function ReportForm({ repoUrl, repoTree }: ReportFormProps) {
                 repoUrl,
                 style: "xml",
                 compress: false,
+                isPrivate: isPrivate,
             });
 
             // 2. Compile selected sections in their current order as a list of names.
@@ -120,7 +123,7 @@ export function ReportForm({ repoUrl, repoTree }: ReportFormProps) {
             // 3. Create a new report record with pending status.
             const newReport = await createReport.mutateAsync({
                 userId: session?.user?.id ?? "",
-                repoDescription: repoDescription ?? "",
+                repoDescription, // Use the prop from parent component
                 repoUrl,
             });
 
@@ -136,7 +139,6 @@ export function ReportForm({ repoUrl, repoTree }: ReportFormProps) {
 
             // 5. Trigger the background job to process the prompt.
             promptModel.mutateAsync({
-                model: selectedModel,
                 context: context.context,
                 templateSections: selectedSections,
                 reportId: newReport.id,
@@ -171,13 +173,18 @@ export function ReportForm({ repoUrl, repoTree }: ReportFormProps) {
                 />
             </div>
 
-            <div className="space-y-6">
-                <ModelSelection
-                    selectedModel={selectedModel}
-                    modelProviders={modelProviders}
-                    onModelChange={setSelectedModel}
-                />
+            {repoDescription && (
+                <div>
+                    <Label htmlFor="repoDescription" className="block text-sm font-medium text-gray-700">
+                        Repository Description
+                    </Label>
+                    <p id="repoDescription" className="mt-1 text-sm text-muted-foreground">
+                        {repoDescription}
+                    </p>
+                </div>
+            )}
 
+            <div className="space-y-6">
                 <SectionList sections={sections} onSectionToggle={handleSectionToggle} />
 
                 <SectionOverview
@@ -191,7 +198,7 @@ export function ReportForm({ repoUrl, repoTree }: ReportFormProps) {
                 <Button
                     type="submit"
                     className="w-full"
-                    disabled={!selectedModel || !sections.some((s) => s.checked) || isSubmitting}
+                    disabled={!sections.some((s) => s.checked) || isSubmitting}
                 >
                     {isSubmitting ? (
                         <>

@@ -15,7 +15,7 @@ export default async function ReportPage({
   
   // Get the session using better-auth's server-side method
   const session = await auth.api.getSession({
-    headers: headers(),
+    headers: await headers(),
   });
 
 

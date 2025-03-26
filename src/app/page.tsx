@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
+import { Card, CardContent } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { useSession } from "~/lib/auth/auth-client";
 
@@ -72,37 +73,45 @@ export default function Home() {
         <div className="mt-12 w-full">
           <div className="flex justify-center items-center gap-6 mx-auto">
             <div className="flex flex-col items-center w-[200px]">
-              <div className="rounded-xl shadow-md p-5 bg-white h-40 w-full flex flex-col items-center justify-center border border-gray-200">
-                <p className="font-medium text-center text-lg">Pick a repository</p>
-                <p className="text-sm text-gray-500 mt-2 text-center">Paste any public GitHub repo URL to analyze its structure</p>
-              </div>
+              <Card className="h-40 w-full cursor-pointer border border-gray-200 bg-white transition-all duration-300 ease-in-out hover:border-primary/50 hover:shadow-xl hover:scale-105 hover:bg-blue-50">
+                <CardContent className="p-5 flex flex-col items-center justify-center h-full">
+                  <p className="font-medium text-center text-lg">Pick a repository</p>
+                  <p className="text-sm text-gray-500 mt-2 text-center">Paste any public GitHub repo URL to analyze its structure</p>
+                </CardContent>
+              </Card>
             </div>
             
             <ArrowRight className="h-10 w-10 text-muted-foreground flex-shrink-0" />
             
             <div className="flex flex-col items-center w-[200px]">
-              <div className="rounded-xl shadow-md p-5 bg-white h-40 w-full flex flex-col items-center justify-center border border-gray-200">
-                <p className="font-medium text-center text-lg">Design a report</p>
-                <p className="text-sm text-gray-500 mt-2 text-center">Specify what aspects of the codebase you want to understand</p>
-              </div>
+              <Card className="h-40 w-full cursor-pointer border border-gray-200 bg-white transition-all duration-300 ease-in-out hover:border-primary/50 hover:shadow-xl hover:scale-105 hover:bg-blue-50">
+                <CardContent className="p-5 flex flex-col items-center justify-center h-full">
+                  <p className="font-medium text-center text-lg">Design a report</p>
+                  <p className="text-sm text-gray-500 mt-2 text-center">Specify what aspects of the codebase you want to understand</p>
+                </CardContent>
+              </Card>
             </div>
             
             <ArrowRight className="h-10 w-10 text-muted-foreground flex-shrink-0" />
             
             <div className="flex flex-col items-center w-[200px]">
-              <div className="rounded-xl shadow-md p-5 bg-white h-40 w-full flex flex-col items-center justify-center border border-gray-200">
-                <p className="font-medium text-center text-lg">LLM analysis</p>
-                <p className="text-sm text-gray-500 mt-2 text-center">Advanced AI models process the code and create insights</p>
-              </div>
+              <Card className="h-40 w-full cursor-pointer border border-gray-200 bg-white transition-all duration-300 ease-in-out hover:border-primary/50 hover:shadow-xl hover:scale-105 hover:bg-blue-50">
+                <CardContent className="p-5 flex flex-col items-center justify-center h-full">
+                  <p className="font-medium text-center text-lg">LLM analysis</p>
+                  <p className="text-sm text-gray-500 mt-2 text-center">Advanced AI models process the code and create insights</p>
+                </CardContent>
+              </Card>
             </div>
             
             <ArrowRight className="h-10 w-10 text-muted-foreground flex-shrink-0" />
             
             <div className="flex flex-col items-center w-[200px]">
-              <div className="rounded-xl shadow-md p-5 bg-white h-40 w-full flex flex-col items-center justify-center border border-gray-200">
-                <p className="font-medium text-center text-lg">Code report</p>
-                <p className="text-sm text-gray-500 mt-2 text-center">Get architecture, file structure, and key component explanations</p>
-              </div>
+              <Card className="h-40 w-full cursor-pointer border border-gray-200 bg-white transition-all duration-300 ease-in-out hover:border-primary/50 hover:shadow-xl hover:scale-105 hover:bg-blue-50">
+                <CardContent className="p-5 flex flex-col items-center justify-center h-full">
+                  <p className="font-medium text-center text-lg">Code report</p>
+                  <p className="text-sm text-gray-500 mt-2 text-center">Get architecture, file structure, and key component explanations</p>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>

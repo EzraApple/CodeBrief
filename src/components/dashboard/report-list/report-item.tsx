@@ -29,6 +29,17 @@ export function ReportItem({
 }: ReportItemProps) {
     const repoName = repoUrl.split("/").slice(-2).join("/")
     const timeAgo = updatedAt ? formatDistanceToNow(new Date(updatedAt), { addSuffix: true }) : 'recently'
+    
+    const truncateDescription = (description: string, maxLength: number) => {
+        if (!description) return "No description available";
+        return description.length > maxLength 
+            ? `${description.substring(0, maxLength)}...` 
+            : description;
+    }
+    
+    const displayDescription = repoDescription 
+        ? truncateDescription(repoDescription, 80) 
+        : "No description available";
 
     return (
         <div className={cn(
@@ -45,11 +56,11 @@ export function ReportItem({
                         <span className="font-medium text-foreground truncate">{repoName}</span>
                     </div>
                     
-                    <p className="text-sm text-muted-foreground flex-1 px-4 truncate">
-                        {repoDescription || "No description available"}
+                    <p className="text-sm text-muted-foreground flex-1 px-4 max-w-[50%]">
+                        {displayDescription}
                     </p>
                     
-                    <span className="text-sm text-muted-foreground flex-shrink-0 w-[140px] text-right">
+                    <span className="text-sm text-muted-foreground ml-auto min-w-[140px] text-right">
                         {timeAgo}
                     </span>
                 </Link>

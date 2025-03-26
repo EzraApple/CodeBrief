@@ -1,4 +1,5 @@
 import { PencilIcon, Squares2X2Icon, ChevronDownIcon, ShareIcon } from "@heroicons/react/24/solid";
+import { Home } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -32,7 +33,7 @@ export function ReportHeader({
         <div className="flex items-center gap-4">
           <Link href="/dashboard">
             <Button variant="ghost" size="icon" className="h-9 w-9">
-              <Squares2X2Icon className="h-4 w-4" />
+              <Home className="h-4 w-4" />
             </Button>
           </Link>
           <h1 className="text-lg font-semibold">{repoName}</h1>

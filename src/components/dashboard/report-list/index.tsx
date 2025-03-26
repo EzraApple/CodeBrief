@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover
 import { Badge } from "~/components/ui/badge";
 import { Spinner } from "~/components/ui/spinner";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -278,7 +279,7 @@ export function ReportList({
                     <Search className="h-4 w-4 absolute left-2.5 top-2.5 text-muted-foreground" />
                     <Input 
                         type="text" 
-                        placeholder="search your repositories" 
+                        placeholder="search your reports" 
                         className="pl-8 w-full min-w-[300px] rounded-full" 
                         value={searchQuery}
                         onChange={handleSearch}
@@ -328,12 +329,14 @@ export function ReportList({
                         </DropdownMenuContent>
                     </DropdownMenu>
                     <Button 
-                        onClick={onNewReport} 
                         variant="default" 
                         className="bg-green-600 hover:bg-green-700 flex items-center gap-1"
+                        asChild
                     >
-                        <Plus className="h-4 w-4" />
-                        New Report
+                        <Link href="/dashboard/new">
+                            <Plus className="h-4 w-4" />
+                            New Report
+                        </Link>
                     </Button>
                     
                     {localPendingReports.length > 0 && (

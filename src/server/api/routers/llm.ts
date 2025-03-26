@@ -20,20 +20,24 @@ export const llmRouter = createTRPCRouter({
     promptModel: publicProcedure
         .input(
             z.object({
-                model: z.string(),
                 context: z.string(),
                 templateSections: z.array(z.string()),
                 reportId: z.string(), // Add the reportId to update the record
             })
         )
         .mutation(async ({ input }) => {
-            const { model, context, templateSections, reportId } = input;
+            const { context, templateSections, reportId } = input;
 
             const template = compileTemplate(templateSections)
             // Compile the prompt
             const prompt = compileReportPrompt(context, template);
             // Send the prompt to the model and await the response
-            const response = await sendPromptToModel(model, prompt);
+            let response = await sendPromptToModel(prompt);
+
+            // Remove the first line if it is "```markdown"
+            if (response.startsWith("```markdown")) {
+                response = response.split("\n").slice(1).join("\n").trim();
+            }
 
             // Update the report record with the response and set status to complete
             const updatedReport = await db.report.update({
