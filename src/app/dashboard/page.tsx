@@ -107,7 +107,7 @@ export default function DashboardPage() {
                 prev.filter(r => !reportIds.has(r.id))
             );
         }
-    }, [reports, optimisticPendingReports]);
+    }, [reports]);
 
     const containerVariants = {
         hidden: { opacity: 0 },

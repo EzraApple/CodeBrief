@@ -8,6 +8,8 @@ import { formatRepoTreeToMarkdown } from "~/lib/github/visualization/formatTree"
 import { db } from "~/server/db";
 import {RepoTreeNode} from "~/lib/github";
 import { getRepoDescription } from "~/lib/github/content/getRepoDescription";
+import {auth} from "~/lib/auth/auth";
+import {headers} from "next/headers";
 
 export const githubRouter = createTRPCRouter({
     getRepoTreeFormatted: publicProcedure
@@ -117,6 +119,50 @@ export const githubRouter = createTRPCRouter({
           const description = await getRepoDescription(input.repoUrl);
           // Return the description as a string (empty string if null)
           return description || "";
+        }),
+
+        getUserRepos: publicProcedure.query(async () => {
+            // Retrieve the session using the headers from the incoming request.
+            const session = await auth.api.getSession({
+                headers: await headers(),
+            });
+
+            // Ensure the session is available and has a user ID.
+            if (!session || !session.user || !session.user.id) {
+                throw new Error("User is not authenticated");
+            }
+
+            // Query your database for the GitHub account associated with this user.
+            // Adjust the table/field names according to your Better Auth setup.
+            const account = await db.account.findFirst({
+                where: {
+                    userId: session.user.id,
+                },
+            });
+            console.log(account)
+
+            if (!account || !account.accessToken) {
+                throw new Error("GitHub account not linked or access token is missing");
+            }
+
+            const accessToken = account.accessToken;
+            console.log("Retrieved GitHub Access Token:", accessToken);
+
+            // Make a request to GitHub's API to fetch the user's repositories.
+            const response = await fetch("https://api.github.com/user/repos?per_page=100&visibility=all&affiliation=owner", {
+                headers: {
+                    "Authorization": `Bearer ${accessToken}`,
+                    "Accept": "application/vnd.github+json",
+                },
+            });
+            console.log("\n\n\n\n\n", response.headers)
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch repositories: ${response.statusText}`);
+            }
+
+            const repos = await response.json();
+            return repos;
         }),
 
 });
