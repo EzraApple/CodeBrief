@@ -24,7 +24,7 @@ function getProviderForModel(model: string) {
     // Iterate over each provider name in the mapping.
     for (const providerName in supportedProviders) {
         const models = supportedProviders[providerName];
-        if (models.includes(model)) {
+        if (models && models.includes(model)) {
             // Based on the providerName, return the corresponding provider instance.
             if (providerName === "openai") {
                 return new OpenAIProvider();
@@ -38,15 +38,14 @@ function getProviderForModel(model: string) {
 }
 
 /**
- * A wrapper function that takes in a model name and a prompt,
- * and dispatches the call to the appropriate provider.
+ * A wrapper function that takes in a prompt and sends it to the Gemini flash model.
  *
- * @param model - The LLM model identifier (e.g., "gpt4o-mini").
  * @param prompt - The prompt to send.
  * @returns The generated response from the LLM.
  */
-export async function sendPromptToModel(model: string, prompt: string): Promise<string> {
-    const provider =getProviderForModel(model)
+export async function sendPromptToModel(prompt: string): Promise<string> {
+    const model = "gemini-2.0-flash-001";
+    const provider = getProviderForModel(model);
     if (!provider) {
         throw new Error(`No provider configured for model: ${model}`);
     }

@@ -14,14 +14,16 @@ export const repoContextRouter = createTRPCRouter({
                 // Optionally allow the caller to override the default output style and compression
                 style: z.enum(["xml", "markdown", "plain"]).optional().default("xml"),
                 compress: z.boolean().optional().default(false),
+                isPrivate: z.boolean()
             })
         )
         .mutation(async ({ input }) => {
+            console.log("trPC Received: ", input.repoUrl, input.isPrivate, input.compress)
             // Generate the context using the repomix CLI wrapper with preset options.
             const context = await generateRepoMixOutput(input.repoUrl, {
                 style: input.style,
                 compress: input.compress,
-            });
+            }, input.isPrivate);
 
             // Save the generated context to the RepoContext table.
             const repoContext = await db.repoContext.create({

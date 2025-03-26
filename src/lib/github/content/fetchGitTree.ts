@@ -8,18 +8,29 @@ import type { GitTreeResponse } from "../types";
  * @param baseUrl - The base GitHub API URL for the repo (e.g., "https://api.github.com/repos/owner/repo")
  * @param treeSha - The SHA of the tree to fetch (for the root tree, you can get this from the repo data)
  * @param recursive - Whether to fetch recursively (default false)
+ * @param accessToken - Optional GitHub OAuth access token to use for authenticated requests.
  * @returns A GitTreeResponse containing the tree array.
  */
 export async function fetchGitTree(
     baseUrl: string,
     treeSha: string,
-    recursive = false
+    recursive = false,
+    accessToken?: string
 ): Promise<GitTreeResponse> {
     const url = `${baseUrl}/git/trees/${treeSha}${recursive ? "?recursive=1" : ""}`;
-    const res = await fetch(url);
+
+    // Build headers; include the Authorization header if accessToken is provided.
+    const headers: Record<string, string> = {
+        "Accept": "application/vnd.github+json",
+    };
+    if (accessToken) {
+        headers["Authorization"] = `Bearer ${accessToken}`;
+    }
+
+    const res = await fetch(url, { headers });
     if (!res.ok) {
         throw new Error(`Failed to fetch git tree: ${res.statusText}`);
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return await res.json();
 }
+

@@ -2,57 +2,100 @@
 
 import { useSearchParams } from "next/navigation";
 import { Separator } from "~/components/ui/separator";
-import { ReportForm } from "src/components/dashboard/new-report";
+import { ReportForm, RepoInput } from "src/components/dashboard/new-report";
 import { useRepoReport } from "~/hooks/useRepoReport";
 import { FileExplorer } from "~/components/file-explorer";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Spinner } from "~/components/ui/spinner";
-import { useState, useEffect } from "react";
-import { Input } from "~/components/ui/input";
-import { Switch } from "~/components/ui/switch";
-import { Button } from "~/components/ui/button";
-import { LockIcon, UnlockIcon } from "lucide-react";
-import { Label } from "~/components/ui/label";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function NewReportPage() {
     const searchParams = useSearchParams();
     const initialRepoUrl = searchParams.get("repoUrl");
     
-    const [customRepoUrl, setCustomRepoUrl] = useState("");
-    const [isUrlLocked, setIsUrlLocked] = useState(false);
-    const [isUrlValid, setIsUrlValid] = useState(false);
-    
-    // Use initial URL from search params or the locked custom URL
-    const repoUrl = initialRepoUrl || (isUrlLocked ? customRepoUrl : null);
+    // State to track the locked repository URL and description
+    const [repoUrl, setRepoUrl] = useState<string | null>(initialRepoUrl);
+    const [repoDescription, setRepoDescription] = useState<string>("");
+    const [isRepoPrivate, setIsRepoPrivate] = useState<boolean>(false);
 
     // Assume useRepoReport returns title along with treeData.
     const { treeData, isLoading, error, title } = useRepoReport(repoUrl);
     
-    // Validate URL format when customRepoUrl changes
-    useEffect(() => {
-        try {
-            // Simple validation - check if it's a properly formatted URL
-            // Could add more specific GitHub repo validation if needed
-            new URL(customRepoUrl);
-            setIsUrlValid(customRepoUrl.trim().length > 0);
-        } catch {
-            setIsUrlValid(false);
-        }
-    }, [customRepoUrl]);
-    
-    // Handle URL lock/unlock toggle
-    const handleToggleUrlLock = () => {
-        if (!isUrlLocked && !isUrlValid) {
-            // Don't allow locking with invalid URL
-            return;
-        }
-        setIsUrlLocked(!isUrlLocked);
+    // Handler for when a URL is locked in the RepoInput component
+    const handleUrlLocked = (url: string, description: string, isPrivate: boolean) => {
+        setRepoUrl(url);
+        setRepoDescription(description);
+        setIsRepoPrivate(isPrivate);
     };
 
+    // Animation variants
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: { 
+            opacity: 1,
+            transition: { 
+                duration: 0.5,
+                staggerChildren: 0.3
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { 
+            opacity: 1, 
+            y: 0,
+            transition: { 
+                type: "spring",
+                stiffness: 300,
+                damping: 15,
+                duration: 0.5
+            }
+        }
+    };
+
+    // Right side animation variants
+    const rightSideVariants = {
+        hidden: { opacity: 0, x: 100 },
+        visible: { 
+            opacity: 1, 
+            x: 0,
+            transition: { 
+                type: "spring",
+                stiffness: 150,
+                damping: 20,
+                duration: 0.7,
+                delay: 0.2 // Slightly delay the right side animation
+            }
+        },
+        exit: {
+            opacity: 0,
+            x: 100,
+            transition: {
+                duration: 0.3
+            }
+        }
+    };
+
+    // Left side container width changes based on whether the repo is selected
+    const leftSideClass = repoUrl
+        ? "flex flex-1 flex-col items-center justify-center p-8"
+        : "flex flex-1 flex-col items-center justify-center p-8 max-w-3xl mx-auto";
+
     return (
-        <main className="container mx-auto flex h-[calc(100vh-4rem)]">
+        <motion.main 
+            className="container mx-auto flex h-[calc(100vh-4rem)]"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+        >
             {/* Left side: Report Form */}
-            <div className="flex flex-1 flex-col items-center justify-center p-8">
+            <motion.div 
+                className={leftSideClass}
+                variants={itemVariants}
+                layout
+            >
                 {isLoading ? (
                     <div className="w-full max-w-md space-y-6">
                         <Skeleton className="h-8 w-3/4 mb-4" />
@@ -62,78 +105,42 @@ export default function NewReportPage() {
                         <Skeleton className="h-10 w-full" />
                     </div>
                 ) : repoUrl ? (
-                    <ReportForm repoUrl={repoUrl} repoTree={treeData} />
+                    <ReportForm repoUrl={repoUrl} repoTree={treeData} repoDescription={repoDescription} isPrivate={isRepoPrivate} />
                 ) : (
-                    <div className="w-full max-w-md space-y-6">
-                        <h1 className="text-4xl font-bold">New Report</h1>
-                        <p className="text-muted-foreground mb-6">Enter a GitHub repository URL to generate a report.</p>
-                        
-                        <div className="space-y-4">
-                            <div className="grid w-full items-center gap-1.5">
-                                <Label htmlFor="repoUrl">Repository URL</Label>
-                                <div className="flex w-full items-center space-x-2">
-                                    <Input
-                                        id="repoUrl"
-                                        type="text"
-                                        placeholder="https://github.com/username/repo"
-                                        value={customRepoUrl}
-                                        onChange={(e) => setCustomRepoUrl(e.target.value)}
-                                        disabled={isUrlLocked}
-                                        className="flex-1"
-                                    />
-                                    <div className="flex items-center space-x-2" onClick={handleToggleUrlLock}>
-                                        <Switch 
-                                            checked={isUrlLocked} 
-                                            disabled={!isUrlValid && !isUrlLocked}
-                                        />
-                                        <Button 
-                                            variant="ghost" 
-                                            size="icon"
-                                            type="button"
-                                            disabled={!isUrlValid && !isUrlLocked}
-                                        >
-                                            {isUrlLocked ? 
-                                                <LockIcon className="h-4 w-4" /> : 
-                                                <UnlockIcon className="h-4 w-4" />
-                                            }
-                                        </Button>
-                                    </div>
-                                </div>
-                                {!isUrlValid && customRepoUrl.length > 0 && (
-                                    <p className="text-sm text-destructive">Please enter a valid URL</p>
-                                )}
-                                {!isUrlLocked && (
-                                    <p className="text-sm text-muted-foreground">Lock the URL to start generating a report</p>
-                                )}
-                            </div>
-                        </div>
-                    </div>
+                    <RepoInput initialRepoUrl={initialRepoUrl} onUrlLocked={handleUrlLocked} />
                 )}
-            </div>
+            </motion.div>
 
-            <Separator orientation="vertical" />
-
-            {/* Right side: Repo tree preview */}
-            {repoUrl ? (
-                <div className="flex flex-1 flex-col items-start justify-start p-8 w-full h-full overflow-hidden">
-                    {isLoading ? (
-                        <div className="w-full h-[calc(100%-5rem)] flex flex-col items-center justify-center">
-                            <Spinner size="lg" className="text-muted-foreground h-12 w-12 mb-4" />
-                        </div>
-                    ) : error ? (
-                        <p className="text-destructive">Error loading repository structure</p>
-                    ) : treeData && (
-                        <div className="w-full h-[calc(100%-5rem)]">
-                            <FileExplorer tree={treeData} title={title} delay={100} defaultExpanded={true} />
-                        </div>
-                    )}
-                </div>
-            ) : (
-                <div className="flex flex-1 flex-col items-start justify-start p-8 w-full">
-                    <h1 className="mb-8 text-3xl font-semibold">Repository Context Preview</h1>
-                    <p className="text-muted-foreground">Enter and lock a repository URL to see the file structure here.</p>
-                </div>
-            )}
-        </main>
+            <AnimatePresence>
+                {/* Only show separator and right side when repo is provided */}
+                {repoUrl && (
+                    <>
+                        <Separator orientation="vertical" />
+                        
+                        {/* Right side: Repo tree preview with slide animation */}
+                        <motion.div 
+                            className="flex flex-1 flex-col items-start justify-start p-8 w-full h-full overflow-hidden"
+                            variants={rightSideVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            layout
+                        >
+                            {isLoading ? (
+                                <div className="w-full h-[calc(100%-5rem)] flex flex-col items-center justify-center">
+                                    <Spinner size="lg" className="text-muted-foreground h-12 w-12 mb-4" />
+                                </div>
+                            ) : error ? (
+                                <p className="text-destructive">Error loading repository structure</p>
+                            ) : treeData && (
+                                <div className="w-full h-[calc(100%-5rem)]">
+                                    <FileExplorer tree={treeData} title={title} delay={100} defaultExpanded={true} />
+                                </div>
+                            )}
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+        </motion.main>
     );
 }
