@@ -6,11 +6,11 @@ import { headers } from "next/headers";
 export default async function ReportPage({
   params,
 }: {
-  params: { reportId: string };
+  params: { reportId: string } | Promise<{ reportId: string }>;
 }) {
   "use server";
 
-  const resolvedParams = await Promise.resolve(params);
+  const resolvedParams = await params;
   const { reportId } = resolvedParams;
   
   // Get the session using better-auth's server-side method
