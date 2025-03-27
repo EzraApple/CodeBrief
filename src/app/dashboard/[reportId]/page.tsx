@@ -3,11 +3,7 @@ import { ReportPageClient } from "~/components/dashboard/report/report-page-clie
 import { auth } from "~/lib/auth/auth";
 import { headers } from "next/headers";
 
-export default async function ReportPage({
-                                           params,
-                                         }: {
-  params: { reportId: string };
-}) {
+export default async function ReportPage({params}) {
   "use server";
 
   // Wrap params in Promise.resolve() and cast its type so that we can await it.
