@@ -4,20 +4,10 @@ import { auth } from "~/lib/auth/auth";
 import { headers } from "next/headers";
 
 // Define an interface for your dynamic route parameters.
-interface ReportPageParams {
-  reportId: string;
-}
+type ReportPageParamsPromise = Promise<{ reportId: string }>;
 
-// Define the props for your page component.
-interface ReportPageProps {
-  params: ReportPageParams;
-}
-
-export default async function ReportPage({ params }: ReportPageProps) {
-  "use server";
-
-  // Now params is typed and available synchronously.
-  const { reportId } = params;
+export default async function ReportPage({ params }: { params: ReportPageParamsPromise }) {
+  const { reportId } = await params;
 
   // Get the session using better-auth's server-side method.
   const session = await auth.api.getSession({
