@@ -73,7 +73,7 @@ export default function DashboardPage() {
         if (!viewModeInitialized.current && typeof window !== 'undefined') {
             const savedViewMode = localStorage.getItem("reportListViewMode");
             if (savedViewMode === "grid" || savedViewMode === "list") {
-                setViewMode(savedViewMode as "grid" | "list");
+                setViewMode(savedViewMode);
             }
             viewModeInitialized.current = true;
         }

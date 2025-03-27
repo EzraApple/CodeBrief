@@ -24,7 +24,7 @@ export async function fetchGitTree(
         "Accept": "application/vnd.github+json",
     };
     if (accessToken) {
-        headers["Authorization"] = `Bearer ${accessToken}`;
+        headers.Authorization = `Bearer ${accessToken}`;
     }
 
     const res = await fetch(url, { headers });

@@ -28,7 +28,7 @@ export function SectionOverview({ sections, orderedSectionIds, onDragEnd }: Sect
                         >
                             {orderedSectionIds.map((sectionId, index) => {
                                 const section = sections.find(s => s.id === sectionId);
-                                if (!section || !section.checked) return null;
+                                if (!section?.checked) return null;
                                 
                                 return (
                                     <Draggable

@@ -1,4 +1,4 @@
-import {calculateLanguageBreakdown, RepoTreeNode} from "~/lib/github";
+import {calculateLanguageBreakdown, type RepoTreeNode} from "~/lib/github";
 
 export function FileExplorerFooter({ tree }: { tree: RepoTreeNode[] }) {
     // Calculate the language breakdown using your getLanguageBreakdown helper

@@ -31,7 +31,7 @@ export interface RepoMixOptions {
 export async function generateRepoMixOutput(
     repoUrl: string,
     options: RepoMixOptions = {},
-    isPrivate: boolean = false
+    isPrivate = false
 ): Promise<string> {
     if (!validateGitHubUrl(repoUrl)) {
         throw new Error("Invalid GitHub URL provided.");

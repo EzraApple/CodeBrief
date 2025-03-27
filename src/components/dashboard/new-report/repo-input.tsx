@@ -5,7 +5,7 @@ import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
 import { GithubIcon, AlertCircle } from "lucide-react";
-import { RepoInputProps, GithubRepository } from "./types";
+import { type RepoInputProps, type GithubRepository } from "./types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { api } from "~/trpc/react";
 import { Spinner } from "~/components/ui/spinner";

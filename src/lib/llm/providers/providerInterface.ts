@@ -24,7 +24,7 @@ function getProviderForModel(model: string) {
     // Iterate over each provider name in the mapping.
     for (const providerName in supportedProviders) {
         const models = supportedProviders[providerName];
-        if (models && models.includes(model)) {
+        if (models?.includes(model)) {
             // Based on the providerName, return the corresponding provider instance.
             if (providerName === "openai") {
                 return new OpenAIProvider();

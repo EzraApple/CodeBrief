@@ -12,7 +12,7 @@ import type { GitBranch } from "../types";
  */
 export async function fetchBranch(
     baseUrl: string,
-    branch: string = "main",
+    branch = "main",
     accessToken?: string
 ): Promise<GitBranch> {
     const url = `${baseUrl}/branches/${branch}`;
@@ -22,7 +22,7 @@ export async function fetchBranch(
         "Accept": "application/vnd.github+json",
     };
     if (accessToken) {
-        headers["Authorization"] = `Bearer ${accessToken}`;
+        headers.Authorization = `Bearer ${accessToken}`;
     }
 
     const res = await fetch(url, { headers });

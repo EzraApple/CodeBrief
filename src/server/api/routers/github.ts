@@ -124,7 +124,7 @@ export const githubRouter = createTRPCRouter({
             });
 
             // Ensure the session is available and has a user ID.
-            if (!session || !session.user || !session.user.id) {
+            if (!session?.user?.id) {
                 throw new Error("User is not authenticated");
             }
 
@@ -136,7 +136,7 @@ export const githubRouter = createTRPCRouter({
                 },
             });
 
-            if (!account || !account.accessToken) {
+            if (!account?.accessToken) {
                 throw new Error("GitHub account not linked or access token is missing");
             }
 
@@ -193,7 +193,7 @@ export const githubRouter = createTRPCRouter({
                     },
                 });
                 if (account && account.accessToken) {
-                    headersObj["Authorization"] = `Bearer ${account.accessToken}`;
+                    headersObj.Authorization = `Bearer ${account.accessToken}`;
                     console.log("Using GitHub Access Token from account:", account.accessToken);
                 } else {
                     console.log("No GitHub account found or access token is missing.");
