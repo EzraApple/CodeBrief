@@ -3,13 +3,23 @@ import { ReportPageClient } from "~/components/dashboard/report/report-page-clie
 import { auth } from "~/lib/auth/auth";
 import { headers } from "next/headers";
 
-export default async function ReportPage({params}) {
+// Define an interface for your dynamic route parameters.
+interface ReportPageParams {
+  reportId: string;
+}
+
+// Define the props for your page component.
+interface ReportPageProps {
+  params: ReportPageParams;
+}
+
+export default async function ReportPage({ params }: ReportPageProps) {
   "use server";
 
-  // Wrap params in Promise.resolve() and cast its type so that we can await it.
-  const { reportId } = (await Promise.resolve(params)) as { reportId: string };
+  // Now params is typed and available synchronously.
+  const { reportId } = params;
 
-  // Get the session using better-auth's server-side method
+  // Get the session using better-auth's server-side method.
   const session = await auth.api.getSession({
     headers: await headers(),
   });
