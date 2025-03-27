@@ -20,4 +20,3 @@ export default async function ReportPage({
 
   return <ReportPageClient reportID={reportId} userID={session?.user?.id ?? ""} />;
 }
-}
