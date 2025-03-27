@@ -18,7 +18,6 @@ import {getSession} from "better-auth/api";
 export function NavBar() {
   const router = useRouter();
   const { data: session } = useSession();
-  console.log(useSession().data)
 
   return (
     <nav className="w-full border-b">
