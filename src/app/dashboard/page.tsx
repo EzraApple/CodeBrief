@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useSession } from "~/lib/auth/auth-client";
 import { api } from "~/trpc/react";
 import { NewReportDialog } from "~/components/dashboard/new-report-dialog";
@@ -22,7 +22,7 @@ interface Report {
     repoDescription?: string;
 }
 
-export default function DashboardPage() {
+function DashboardContent() {
     const { data: session } = useSession();
     const userId = session?.user?.id ?? "";
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -31,25 +31,25 @@ export default function DashboardPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const { toast } = useToast();
-    
+
     // For optimistic updates
     const [optimisticPendingReports, setOptimisticPendingReports] = useState<Report[]>([]);
     const optimisticChecked = useRef(false);
 
     // Check for optimistic report in localStorage
     useEffect(() => {
-        if (typeof window !== 'undefined' && !optimisticChecked.current) {
-            const optimisticReport = localStorage.getItem('optimisticPendingReport');
+        if (typeof window !== "undefined" && !optimisticChecked.current) {
+            const optimisticReport = localStorage.getItem("optimisticPendingReport");
             if (optimisticReport) {
                 try {
                     const report = JSON.parse(optimisticReport) as Report;
                     if (report && report.userId === userId) {
-                        setOptimisticPendingReports(prev => [...prev, report]);
+                        setOptimisticPendingReports((prev) => [...prev, report]);
                     }
                     // Remove from localStorage after reading it
-                    localStorage.removeItem('optimisticPendingReport');
+                    localStorage.removeItem("optimisticPendingReport");
                 } catch (e) {
-                    console.error('Error parsing optimistic report', e);
+                    console.error("Error parsing optimistic report", e);
                 }
             }
             optimisticChecked.current = true;
@@ -64,13 +64,12 @@ export default function DashboardPage() {
                 description: "Your report has been added to the pending list.",
                 duration: 5000,
             });
-            
             router.replace("/dashboard");
         }
     }, [searchParams, toast, router]);
 
     useEffect(() => {
-        if (!viewModeInitialized.current && typeof window !== 'undefined') {
+        if (!viewModeInitialized.current && typeof window !== "undefined") {
             const savedViewMode = localStorage.getItem("reportListViewMode");
             if (savedViewMode === "grid" || savedViewMode === "list") {
                 setViewMode(savedViewMode);
@@ -80,7 +79,7 @@ export default function DashboardPage() {
     }, []);
 
     useEffect(() => {
-        if (viewModeInitialized.current && typeof window !== 'undefined') {
+        if (viewModeInitialized.current && typeof window !== "undefined") {
             localStorage.setItem("reportListViewMode", viewMode);
         }
     }, [viewMode]);
@@ -92,41 +91,31 @@ export default function DashboardPage() {
 
     // Split reports into pending (queue) and completed (library)
     // Include optimistic pending reports
-    const completedReports = (reports as Report[] ?? []).filter(r => r.status === "complete");
+    const completedReports = (reports as Report[] ?? []).filter((r) => r.status === "complete");
     const pendingReports = [
-        ...(reports as Report[] ?? []).filter(r => r.status !== "complete"),
-        ...optimisticPendingReports
+        ...(reports as Report[] ?? []).filter((r) => r.status !== "complete"),
+        ...optimisticPendingReports,
     ];
 
     // When we get new data from API, remove any optimistic reports that are now in the real data
     useEffect(() => {
         if (reports && optimisticPendingReports.length > 0) {
-            const reportIds = new Set((reports as Report[]).map(r => r.id));
-            
-            setOptimisticPendingReports(prev => 
-                prev.filter(r => !reportIds.has(r.id))
-            );
+            const reportIds = new Set((reports as Report[]).map((r) => r.id));
+            setOptimisticPendingReports((prev) => prev.filter((r) => !reportIds.has(r.id)));
         }
     }, [reports]);
 
     const containerVariants = {
         hidden: { opacity: 0 },
-        visible: { 
+        visible: {
             opacity: 1,
-            transition: { 
-                duration: 0.5,
-                staggerChildren: 0.3
-            }
-        }
+            transition: { duration: 0.5, staggerChildren: 0.3 },
+        },
     };
 
     const itemVariants = {
         hidden: { opacity: 0, y: 5 },
-        visible: { 
-            opacity: 1, 
-            y: 0,
-            transition: { duration: 0.1 }
-        }
+        visible: { opacity: 1, y: 0, transition: { duration: 0.1 } },
     };
 
     const handleViewModeChange = (newMode: "grid" | "list") => {
@@ -134,7 +123,7 @@ export default function DashboardPage() {
     };
 
     return (
-        <motion.main 
+        <motion.main
             className="container mx-auto p-4 min-h-[100vh] flex flex-col"
             variants={containerVariants}
             initial="hidden"
@@ -144,8 +133,8 @@ export default function DashboardPage() {
                 {isLoading && optimisticPendingReports.length === 0 ? (
                     <ReportListLoading viewMode={viewMode} />
                 ) : (
-                    <ReportList 
-                        reports={completedReports} 
+                    <ReportList
+                        reports={completedReports}
                         pendingReports={pendingReports}
                         onNewReport={() => setDialogOpen(true)}
                         onViewModeChange={handleViewModeChange}
@@ -157,5 +146,13 @@ export default function DashboardPage() {
 
             <NewReportDialog open={dialogOpen} onOpenChange={setDialogOpen} />
         </motion.main>
+    );
+}
+
+export default function DashboardPage() {
+    return (
+        <Suspense fallback={<div>Loading Dashboard...</div>}>
+            <DashboardContent />
+        </Suspense>
     );
 }
