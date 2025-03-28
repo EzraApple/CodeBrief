@@ -1,12 +1,14 @@
 "use client";
 
+import React, { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Separator } from "~/components/ui/separator";
 import { LoginBox } from "~/components/auth/login-box";
 import { useRepoReport } from "~/hooks/useRepoReport";
 import { FileExplorer } from "~/components/file-explorer";
 
-export default function LoginPage() {
+function LoginContent() {
+    // This hook is asynchronous and now safely wrapped in Suspense.
     const searchParams = useSearchParams();
     const repoUrl = searchParams.get("repoUrl") ?? null;
 
@@ -33,9 +35,7 @@ export default function LoginPage() {
             {/* Repo Preview Side */}
             <div className="flex flex-1 flex-col items-start justify-start p-8 w-full h-full overflow-hidden">
                 {isLoading && <p>Loading repository structure...</p>}
-                {error && (
-                    <p className="text-destructive">Error: {error.message}</p>
-                )}
+                {error && <p className="text-destructive">Error: {error.message}</p>}
                 {treeData && (
                     <div className="w-full h-[calc(100%-5rem)]">
                         <FileExplorer tree={treeData} title={title} delay={100} defaultExpanded={true} />
@@ -43,5 +43,13 @@ export default function LoginPage() {
                 )}
             </div>
         </main>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={<div>Loading search parameters...</div>}>
+            <LoginContent />
+        </Suspense>
     );
 }
