@@ -1,29 +1,99 @@
-# Create T3 App
+Below is an example README.md that describes your repository, provides basic setup instructions, and includes links to the pages where you obtain your API keys.
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+---
 
-## What's next? How do I make an app with this?
+# CodeBrief
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+CodeBrief is a comprehensive code analysis and report generation service designed to help you quickly understand and document GitHub repositories. It uses a combination of repomix for repository analysis and LLM-generated markdown reports to provide an overview of a codebase’s structure, language breakdown, key files, and more.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Features
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+- **Repository Analysis:**  
+  Automatically clone a GitHub repository (public or private), generate its file tree, and analyze its structure.
 
-## Learn More
+- **LLM Report Generation:**  
+  Generate a detailed markdown report using an LLM based on the analyzed repository context.
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+- **User Workflow:**  
+  Each account gets 5 free reports. After the free quota is exhausted, users must supply their own Google API key to continue generating reports.
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+- **Dashboard:**  
+  Manage and view your reports through a responsive dashboard.
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+## Getting Started
 
-## How do I deploy this?
+Follow these steps to set up and run CodeBrief locally:
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+### Environment Variables
+
+Create a `.env` file in the root of your project. At a minimum, you need to provide the following variables:
+
+```env
+# Prisma database URL (e.g., for SQLite, you might have a file path)
+DATABASE_URL="file:./dev.db"
+
+# GitHub OAuth credentials (obtain these from GitHub Developer settings)
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+
+# Google API key for generating reports (if users are required to supply their own after free quota)
+GOOGLE_API_KEY=your_google_api_key
+
+# Base URL for your app (ensure it uses HTTPS in production)
+NEXT_PUBLIC_BASE_URL=https://code-brief.vercel.app
+```
+
+#### How to Get Your API Keys
+
+- **GitHub Client ID and Secret:**  
+  Sign in to [GitHub Developer Portal](https://github.com/settings/developers) and create a new OAuth App. Use the provided Client ID and Client Secret in your `.env` file.
+
+- **Google API Key:**  
+  Go to the [Google Cloud Console](https://console.cloud.google.com/), create a new project if necessary, and enable the relevant APIs (e.g. Google Custom Search, if that’s what you’re using). Then navigate to the **APIs & Services > Credentials** page to create an API key.
+
+### Installation
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/yourusername/CodeBrief.git
+   cd CodeBrief
+   ```
+
+2. **Install dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+3. **Set up Prisma and the database:**
+
+   If you’re using SQLite locally, run the Prisma migrations:
+
+   ```bash
+   npx prisma migrate dev --name init
+   ```
+
+4. **Run the development server:**
+
+   ```bash
+   npm run dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
+
+
+## Workflow Overview
+
+1. **Report Generation:**
+    - When a user initiates report generation, CodeBrief clones the specified repository.
+    - For private repositories, the server uses an authenticated clone URL (using the GitHub access token) and writes temporary files to `/tmp`.
+    - Repomix analyzes the repository structure and outputs a file that is then processed to generate a context for the LLM.
+
+2. **LLM Report Generation:**
+    - The LLM is prompted with the repository context and a template, returning a detailed markdown report.
+    - The report is stored and displayed in the user dashboard.
+
+3. **Usage Limits:**
+    - Each account gets 5 free reports.
+    - After this limit, users must supply their own Google API key through the account settings.
