@@ -53,7 +53,7 @@ async function generateRepoMixOutputForPublicRepo(
     options: RepoMixOptions = {}
 ): Promise<string> {
     const outputFilePath = options.outputFilePath ?? getTempFilePath();
-
+    console.log("Writing Repomix output to:", outputFilePath)
     let command = `npx repomix --remote ${repoUrl} --output ${outputFilePath} --remove-comments`;
     command += options.style ? ` --style ${options.style}` : ` --style xml`;
     if (options.compress) command += ` --compress`;

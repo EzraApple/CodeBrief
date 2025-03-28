@@ -18,7 +18,6 @@ export const repoContextRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ input }) => {
-            console.log("trPC Received: ", input.repoUrl, input.isPrivate, input.compress)
             // Generate the context using the repomix CLI wrapper with preset options.
             const context = await generateRepoMixOutput(input.repoUrl, {
                 style: input.style,
