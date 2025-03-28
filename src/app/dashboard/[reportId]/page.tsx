@@ -3,13 +3,9 @@ import { ReportPageClient } from "~/components/dashboard/report/report-page-clie
 import { auth } from "~/lib/auth/auth";
 import { headers } from "next/headers";
 
-// Define an interface for your dynamic route parameters.
-type ReportPageParamsPromise = Promise<{ reportId: string }>;
 
-export default async function ReportPage({ params }: { params: ReportPageParamsPromise }) {
-
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
+export default async function ReportPage({ params }: { params: Promise<{ reportId: string }> }) {
+  
   const { reportId } = await params;
 
   // Get the session using better-auth's server-side method.

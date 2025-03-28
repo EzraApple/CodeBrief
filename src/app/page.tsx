@@ -81,7 +81,7 @@ export default function Home() {
               </Card>
             </div>
             
-            <ArrowRight className="h-10 w-10 text-muted-foreground flex-shrink-0" />
+            <ArrowRight className="h-10 w-10 text-muted-foreground flex-shrink-0 transition-all duration-300 ease-in-out hover:text-primary hover:scale-110" />
             
             <div className="flex flex-col items-center w-[200px]">
               <Card className="h-40 w-full cursor-pointer border border-gray-200 bg-white transition-all duration-300 ease-in-out hover:border-primary/50 hover:shadow-xl hover:scale-105 hover:bg-blue-50">
@@ -92,7 +92,7 @@ export default function Home() {
               </Card>
             </div>
             
-            <ArrowRight className="h-10 w-10 text-muted-foreground flex-shrink-0" />
+            <ArrowRight className="h-10 w-10 text-muted-foreground flex-shrink-0 transition-all duration-300 ease-in-out hover:text-primary hover:scale-110" />
             
             <div className="flex flex-col items-center w-[200px]">
               <Card className="h-40 w-full cursor-pointer border border-gray-200 bg-white transition-all duration-300 ease-in-out hover:border-primary/50 hover:shadow-xl hover:scale-105 hover:bg-blue-50">
@@ -103,7 +103,7 @@ export default function Home() {
               </Card>
             </div>
             
-            <ArrowRight className="h-10 w-10 text-muted-foreground flex-shrink-0" />
+            <ArrowRight className="h-10 w-10 text-muted-foreground flex-shrink-0 transition-all duration-300 ease-in-out hover:text-primary hover:scale-110" />
             
             <div className="flex flex-col items-center w-[200px]">
               <Card className="h-40 w-full cursor-pointer border border-gray-200 bg-white transition-all duration-300 ease-in-out hover:border-primary/50 hover:shadow-xl hover:scale-105 hover:bg-blue-50">
